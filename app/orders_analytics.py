@@ -1,22 +1,39 @@
 import pandas as pd
-"Complete thes functions or write your own to perform the following tasks"
+"Complete these functions or write your own to perform the following tasks"
 
-def calculate_profit_by_order(orders_df):
-    "Calculate profit for each order in the DataFrame"
+def add_profit_column(orders_df):
+    "Add a profit column for each order in the DataFrame"
+
+    sale_price = orders_df['List Price'] * (1 - orders_df['Discount Percent'] / 100)
+    orders_df['Profit'] = (sale_price - orders_df['cost price']) * orders_df['Quantity']
 
     return orders_df
 
 def calculate_most_profitable_region(orders_df):
     "Calculate the most profitable region and its profit"
+
+    by_region_df = orders_df.groupby('Region', as_index=False)['Profit'].sum()
+    top_region_df = by_region_df.nlargest(1, 'Profit')
    
-    return
+    return top_region_df
 
 def find_most_common_ship_method(orders_df):
     "Find the most common shipping method for each Category"
+
+    top_ship_df = (orders_df.groupby('Category')['Ship Mode']
+    # For a tie in frequency, the tied ship modes are sorted and joined with a semicolon
+    .agg(lambda s: '; '.join(sorted(s.mode())))
+    .reset_index()
+    )
     
-    return 
+    return top_ship_df
 
-def find_number_of_order_per_category( orders_df):
+def find_number_of_order_per_category(orders_df):
     "find the number of orders for each Category and Sub Category"
+    order_counts_df = (
+    orders_df.groupby(['Category', 'Sub Category'], as_index=False)['Order Id']
+    .nunique()
+    .rename(columns={'Order Id': 'Order Count'})
+    )
 
-    return
+    return order_counts_df
