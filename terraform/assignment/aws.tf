@@ -11,7 +11,7 @@ terraform {
   backend "s3" {
     bucket = "nmd-training-tf-states-888577066340"
     ## update the key value to a unique value for your assignment
-    # key            = "assignment/alec-arnold-key-nmd-assignment.tfstate"
+    # key            = "assignment/alec-arnold-nmd-assignment.tfstate"
     region         = "us-west-2"
     dynamodb_table = "nmd-training-tf-state-lock-table"
     encrypt        = true # Encrypts the state file at rest

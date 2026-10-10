@@ -69,10 +69,10 @@ Prerequisites: Terraform, docker desktop, AWS CLI with a profile for the assessm
 
 1. Set candidate_name (exact AWS IAM username) and aws_profile in terraform/assignment/vars.tfvars
 
-2. Initialize terraform. I had to use the key assignment/alec-arnold-key-nmd-assignment.tfstate instead of the example in instructions.md
+2. Initialize terraform. I had to use the key assignment/alec-arnold-nmd-assignment.tfstate instead of the example in instructions.md
 ```sh
 cd terraform/assignment
-terraform init -backend-config="key=assignment/alec-arnold-key-nmd-assignment.tfstate"
+terraform init -backend-config="key=assignment/alec-arnold-nmd-assignment.tfstate"
 ```
 
 3. Create the ECR repo
