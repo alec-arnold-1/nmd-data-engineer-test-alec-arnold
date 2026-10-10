@@ -4,7 +4,6 @@ import os
 import logging
 import pandas as pd
 import urllib.parse
-import awswrangler as wr
 
 from orders_analytics import (
     add_profit_column,
@@ -18,7 +17,7 @@ This lambda function performs the following actions
 
 1. Find the most profitable Region, and its profit
 2. Find what shipping method is most common for each Category
-3. Output a glue table containing the number of orders for each Category and Sub Category
+3. Find number of orders for each Category and Sub Category
 """
 
 
@@ -40,14 +39,13 @@ def lambda_handler(event, context):
 
     try:
 
-        # get glue database and output bucket environment variables
+        # get output bucket environment variable
         output_bucket = os.environ["OUTPUT_BUCKET"]
-        glue_database = os.environ["GLUE_DATABASE"]
         
         s3_path = get_s3_path_from_event(event) # Find the CSV file
 
-        source_name = os.path.splitext(os.path.basename(s3_path))[0] # for example get "sample_orders" from the s3 path "s3://bucket.sample_orders.csv"
-        # use this to get source file name for both the glue partition column and the csv output folders
+        source_name = os.path.splitext(os.path.basename(s3_path))[0] # for example get "sample_orders" from the s3 path "s3://bucket/sample_orders.csv"
+        # use this to get source file name for the csv output folders
 
         # Perform analytics on orders data
         orders_df = pd.read_csv(s3_path) # Read CSV from s3 path and put into pandas dataframe
@@ -56,30 +54,16 @@ def lambda_handler(event, context):
         top_ship_df = find_most_common_ship_method(orders_df)
         order_counts_df = find_number_of_order_per_category(orders_df)
 
-        
+    
 
-      
-       
-
-        # Write the dataframes to output bucket as CSV files / Glue table
+        # Write the dataframes to output bucket as CSV files 
         # Partitioning: each of the results of the input files get their own folderso that the files dont get overwritten
 
         top_region_df.to_csv(f"s3://{output_bucket}/top_region/source_file={source_name}/top_region.csv", index = False) # Most profitable region
         top_ship_df.to_csv(f"s3://{output_bucket}/top_ship/source_file={source_name}/top_ship.csv", index = False) # Most common shipping methods
+        order_counts_df.to_csv(f"s3://{output_bucket}/order_counts/source_file={source_name}/order_counts.csv", index = False) # Order counts by category and subcategory
 
-        #TBD: CSV and glue table for order_counts?
-        #order_counts_df.to_csv(f"s3://{output_bucket}/order_counts.csv", index = False) 
 
-        wr.s3.to_parquet( # Order counts by category and subcategory
- 
-            df=order_counts_df.assign(source_file=source_name),  # add the partition column
-            path=f"s3://{output_bucket}/order_counts/",  # this is a folder not a file
-            dataset=True,
-            mode="overwrite_partitions",  # only replace this file's partition
-            partition_cols=["source_file"],  # write into order_counts/source_file=<name>/
-            database=glue_database,
-            table="order_counts",
-        )
     
         logger.info(f"Completed processing of {s3_path} and wrote to {output_bucket}")
 
