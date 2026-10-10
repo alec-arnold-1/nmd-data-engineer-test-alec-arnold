@@ -15,3 +15,9 @@ variable "default_tags" {
   type = map(string)
   description = "Default tags to apply to all resources"
 }
+# modular design instead of hardcoding arm64
+variable "architectures" {
+  type = list(string)
+  description = "Instruction set architecture, must match the docker build platform"
+  default = ["arm64"]
+}

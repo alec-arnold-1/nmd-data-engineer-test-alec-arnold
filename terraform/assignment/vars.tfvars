@@ -1,6 +1,6 @@
 # Update the following variables with your information
-candidate_name="Your Name Here"
-aws_profile="your-aws-profile"
+candidate_name = "alec_arnold"
+aws_profile    = "alec_nmd"
 
 # Please leave these values as they are
 env     = "dev"
